@@ -118,7 +118,7 @@ with col1:
     name1 = st.selectbox(label = "Choose player one", options = np.unique(df[['Attack_1', 'Defence_1','Attack_2' ,'Defence_2' ]].values), index = 1)
     
 with col2:
-    name2 = st.selectbox(label = "Choose player one", options = np.unique(df[['Attack_1', 'Defence_1','Attack_2' ,'Defence_2' ]].values), index = 3)
+    name2 = st.selectbox(label = "Choose second player", options = np.unique(df[['Attack_1', 'Defence_1','Attack_2' ,'Defence_2' ]].values), index = 3)
 
     
 if name1 == name2 :
