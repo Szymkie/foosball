@@ -149,3 +149,87 @@ def goals_lost_avg(df, name, position = 'all'):
         
     return avg_goals
 
+
+def winrate_w_partner(df, name, name2, position = 'total'):
+    
+
+    if position == 'total':
+
+        played_1 = df.loc[((df['Attack_1'] == name) & 
+                        (df['Defence_1'] == name2)) | 
+                        ((df['Attack_1'] == name2) & 
+                        (df['Defence_1'] == name))]
+
+        played_2 = df.loc[((df['Attack_2'] == name) & 
+                        (df['Defence_2'] == name2)) | 
+                        ((df['Attack_2'] == name2) & 
+                        (df['Defence_2'] == name))]
+
+        wins_1 = played_1.loc[df['Win'] == 1]
+        wins_2 = played_2.loc[df['Win'] == 2]
+
+        played_all = len(played_1) + len(played_2)
+        
+        wins_total = len(wins_1) + len(wins_2)
+        
+        try:
+                
+            winrate = round(((wins_total/played_all)*100), 1)
+            
+        except:
+            
+            winrate = 'Not enough data'
+        
+        
+    elif position == 'attack':
+
+        played_1 = df.loc[((df['Attack_1'] == name) & 
+                        (df['Defence_1'] == name2))]
+        
+        played_2 = df.loc[((df['Attack_2'] == name) & 
+                        (df['Defence_2'] == name2))]
+                       
+
+        wins_1 = played_1.loc[df['Win'] == 1]
+        wins_2 = played_2.loc[df['Win'] == 2]
+
+        played_all = len(played_1) + len(played_2)
+        
+        wins_total = len(wins_1) + len(wins_2)
+        
+        try:
+            
+            winrate = round(((wins_total/played_all)*100), 1)
+            
+        except:
+            
+            winrate = 'Not enough data'
+            
+        
+    elif position == 'defence':
+
+        played_1 = df.loc[((df['Attack_1'] == name2) & 
+                        (df['Defence_1'] == name))]
+        
+        played_2 = df.loc[((df['Attack_2'] == name2) & 
+                        (df['Defence_2'] == name))]
+                       
+
+        wins_1 = played_1.loc[df['Win'] == 1]
+        wins_2 = played_2.loc[df['Win'] == 2]
+
+        played_all = len(played_1) + len(played_2)
+        
+        wins_total = len(wins_1) + len(wins_2)
+        
+        try:
+            
+            winrate = round(((wins_total/played_all)*100), 1)
+            
+        except:
+            
+            winrate = 'Not enough data'
+            
+        
+    return winrate
+
