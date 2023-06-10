@@ -233,3 +233,22 @@ def winrate_w_partner(df, name, name2, position = 'total'):
         
     return winrate
 
+
+def num_played_with(df, name, name2):
+
+    played_1 = df.loc[((df['Attack_1'] == name) & 
+                    (df['Defence_1'] == name2)) | 
+                    ((df['Attack_1'] == name2) & 
+                    (df['Defence_1'] == name))]
+
+    played_2 = df.loc[((df['Attack_2'] == name) & 
+                    (df['Defence_2'] == name2)) | 
+                    ((df['Attack_2'] == name2) & 
+                    (df['Defence_2'] == name))]
+
+    wins_1 = played_1.loc[df['Win'] == 1]
+    wins_2 = played_2.loc[df['Win'] == 2]
+
+    played_all = len(played_1) + len(played_2)
+    
+    return played_all

@@ -6,14 +6,15 @@ import seaborn as sns
 import streamlit as st
 from PIL import Image
 import warnings
+import plotly.graph_objects as go
 
 pd.options.mode.chained_assignment = None
 
-from stats import win_rate, count, played, goals_scored_total, goals_scored_avg, goals_lost_total, goals_lost_avg, winrate_w_partner
+from stats import win_rate, count, played, goals_scored_total, goals_scored_avg, goals_lost_total, goals_lost_avg, winrate_w_partner, num_played_with
 
 st.set_page_config(
     page_title="Samsung Foosball",
-    page_icon="✅",
+    page_icon="⚽",
     layout="wide",
 )
 
@@ -35,6 +36,7 @@ grouped = df_data.groupby(['Date']).count()['Win']
 
 
 st.title("SEUK Foosball KPI's")
+
 tab1, tab2, tab3 = st.tabs(["General info", "Personal Statistics", "Cooperational Analysis"])
 
 with tab1:
@@ -69,36 +71,72 @@ with tab2:
     
     st.header('Individual statistics')    
 
-    name = st.selectbox(label = "Player name", options = np.unique(df[['Attack_1', 'Defence_1','Attack_2' ,'Defence_2' ]].values))
+    name = st.selectbox(label = "Choose the player", options = np.unique(df[['Attack_1', 'Defence_1','Attack_2' ,'Defence_2' ]].values))
 
     image = Image.open(f'data/players/{name}.JPEG')
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns([0.3, 0.6], gap = 'large')
 
     with col1:
 
         st.image(image, caption = name)
 
     with col2:
-
+        
+        players = list(np.unique(df[['Attack_1', 'Defence_1','Attack_2' ,'Defence_2' ]].values))
+        players.remove(name)
+        win_total = []
+        played_w = []
+        
+        for ply in players:
+            
+            tmp1 = round(winrate_w_partner(df = df, name = name, name2 = ply, position = 'total'), 1)   
+            tmp2 = num_played_with(df = df, name = name, name2 = ply)
+            win_total.append(tmp1)
+            played_w.append(tmp2)
+        
+        
+        data_plot = pd.DataFrame({'name' : players,
+                                'winrate' : win_total,
+                                'played' : played_w}
+                                )
+        
+        fig_2 = px.scatter(data_frame = data_plot, 
+                           x = 'played', 
+                           y = 'winrate', title='Teammates analysis', text = 'name', labels = {'played' : "Number of games played together", 'winrate' : 'Mutual Winrate'}
+)
+        
+        fig_2.update_traces(marker=dict(size=20), textposition = 'bottom center', textfont_size=15)
+        
+        
+        
+        st.plotly_chart(fig_2, use_container_width=True)
+        
+    col1, col2, col3, col4 = st.columns(4)
+        
+        
+    with col1:
+        
+        st.subheader('Games played')
+            
         st.metric(
-            label="Matches played",
+            label="Total games",
             value= played(df, name, position = 'all') 
         )
-
         st.metric(
-            label = f"Goals scored on average while {name} is on attack",
-            value = goals_scored_avg(df, name, position = 'attack')
+            label="Games on attack",
+            value= played(df, name, position = 'attack') 
         )
-
         st.metric(
-            label = f"Goals lost on average while {name} is on defence",
-            value = goals_lost_avg(df, name, position = 'defence')
+            label="Games on defence",
+            value= played(df, name, position = 'defence') 
         )
+        
+        
+    with col2:
 
-
-    with col3:
-
+        st.subheader('Win rates')
+        
         st.metric(
             label="Win Rate (all games)",
             value= win_rate(df, name, position = 'all') 
@@ -113,6 +151,42 @@ with tab2:
         st.metric(
             label="Win Rate (played on defence)",
             value=win_rate(df, name, position = 'defence')
+        )
+        
+        
+    with col3:
+
+        st.subheader('Goals scored total')
+
+        st.metric(
+            label = f"Total goals scored while {name} in team",
+            value = goals_scored_total(df, name, position = 'all') 
+        )
+
+        st.metric(
+            label = f"Total goals scored while {name} on attack",
+            value = goals_scored_total(df, name, position = 'attack')
+        )
+
+
+        st.metric(
+            label = f"Total goals scored while {name} on defence",
+            value = goals_scored_total(df, name, position = 'defence')
+        )
+        
+        
+    with col4:
+        
+        st.subheader('Goals average')
+
+        st.metric(
+            label = f"Goals scored on average while {name} on attack",
+            value = goals_scored_avg(df, name, position = 'attack')
+        )
+
+        st.metric(
+            label = f"Goals lost on average while {name} on defence",
+            value = goals_lost_avg(df, name, position = 'defence')
         )
         
 with tab3:
