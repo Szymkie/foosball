@@ -85,28 +85,41 @@ with tab2:
         
         players = list(np.unique(df[['Attack_1', 'Defence_1','Attack_2' ,'Defence_2' ]].values))
         players.remove(name)
-        win_total = []
+        
+        win_total_attack = []
+        win_total_defence = []
         played_w = []
         
         for ply in players:
             
-            tmp1 = round(winrate_w_partner(df = df, name = name, name2 = ply, position = 'total'), 1)   
-            tmp2 = num_played_with(df = df, name = name, name2 = ply)
-            win_total.append(tmp1)
-            played_w.append(tmp2)
+            tmp1 = round(winrate_w_partner(df = df, name = name, name2 = ply, position = 'attack'), 1)
+            tmp2 = round(winrate_w_partner(df = df, name = name, name2 = ply, position = 'defence'), 1)
+            tmp3 = num_played_with(df = df, name = name, name2 = ply)
+            win_total_attack.append(tmp1)
+            win_total_defence.append(tmp2)
+            played_w.append(tmp3)
         
         
         data_plot = pd.DataFrame({'name' : players,
-                                'winrate' : win_total,
+                                'winrate_attack' : win_total_attack, 
+                                'winrate_defence' : win_total_defence,
                                 'played' : played_w}
                                 )
         
         fig_2 = px.scatter(data_frame = data_plot, 
-                           x = 'played', 
-                           y = 'winrate', title='Teammates analysis', text = 'name', labels = {'played' : "Number of games played together", 'winrate' : 'Mutual Winrate'}
-)
+                           x = 'winrate_attack', 
+                           y = 'winrate_defence', 
+                           title='Teammates analysis', 
+                           text = 'name', 
+                           size = 'played', color = 'name', 
+                           labels = {'played' : "Number of games together", 
+                                     'winrate_attack' : f'Winrate ({name} on attack)', 
+                                     'name' : 'Teammate', 
+                                     'winrate_defence' : f'Winrate ({name} on defence)'}
+                            )
         
-        fig_2.update_traces(marker=dict(size=20), textposition = 'bottom center', textfont_size=15)
+        fig_2.update_layout(title=dict(font=dict(size=40), automargin=True), showlegend=False)
+        fig_2.update_traces(textposition = 'bottom center', textfont_size=15)
         
         
         
@@ -138,10 +151,10 @@ with tab2:
         st.subheader('Win rates')
         
         st.metric(
-            label="Win Rate (all games)",
+            label= f"Win Rate (all games)",
             value= win_rate(df, name, position = 'all') 
         )
-
+        
         st.metric(
             label="Win Rate (played on attack)",
             value=win_rate(df, name, position = 'attack')
@@ -234,3 +247,5 @@ with tab3:
                 label = f'Winrate \n ({name2} on Attack, {name1} on Defence)', value = defence1
             )
         
+        
+        st.subheader('Nemesis system in progress')
