@@ -75,13 +75,33 @@ with tab2:
 
     image = Image.open(f'data/players/{name}.JPEG')
 
-    col1, col2 = st.columns([0.3, 0.6], gap = 'large')
+    col1, col2, col3 = st.columns([0.25, 0.25, 0.5], gap = 'large')
 
     with col1:
 
         st.image(image, caption = name)
-
+    
     with col2:
+        
+        
+        position = st.radio('Winrate', options = ['All', 'Attack', 'Defence'], horizontal = True)
+        
+        position_arg = position.lower()
+        
+        
+        
+        gauge = go.Figure(go.Indicator(
+        mode = "gauge+number",
+        value = win_rate(df, name, position = position_arg),
+        domain = {'x': [0, 1], 'y': [0, 1]},
+        number = {'suffix': "%"},
+        title = {'text': f"Winrate<br>({position})"}))
+        
+        gauge.update_traces(gauge_axis_range=[0,100], selector=dict(type='indicator'))
+        
+        st.plotly_chart(gauge, use_container_width=True, use_container_highth=True)
+        
+    with col3:
         
         players = list(np.unique(df[['Attack_1', 'Defence_1','Attack_2' ,'Defence_2' ]].values))
         players.remove(name)
@@ -118,14 +138,19 @@ with tab2:
                                      'winrate_defence' : f'Winrate ({name} on defence)'}
                             )
         
-        fig_2.update_layout(title=dict(font=dict(size=40), automargin=True), showlegend=False)
-        fig_2.update_traces(textposition = 'bottom center', textfont_size=15)
+        fig_2.update_layout(title=dict(font=dict(size=35), 
+                                       automargin=True), 
+                            showlegend=False, 
+                            title_font_family="sans-serif")
         
-        
+        fig_2.update_traces(textposition = 'bottom center', 
+                            textfont_size=15)
         
         st.plotly_chart(fig_2, use_container_width=True)
-        
-    col1, col2, col3, col4 = st.columns(4)
+   
+
+    st.header('Goals statistics')
+    col1, col2, col3 = st.columns(3)
         
         
     with col1:
@@ -146,28 +171,28 @@ with tab2:
         )
         
         
+#     with col2:
+
+#         st.subheader('Win rates')
+        
+#         st.metric(
+#             label= f"Win Rate (all games)",
+#             value= win_rate(df, name, position = 'all') 
+#         )
+        
+#         st.metric(
+#             label="Win Rate (played on attack)",
+#             value=win_rate(df, name, position = 'attack')
+#         )
+
+
+#         st.metric(
+#             label="Win Rate (played on defence)",
+#             value=win_rate(df, name, position = 'defence')
+#         )
+        
+        
     with col2:
-
-        st.subheader('Win rates')
-        
-        st.metric(
-            label= f"Win Rate (all games)",
-            value= win_rate(df, name, position = 'all') 
-        )
-        
-        st.metric(
-            label="Win Rate (played on attack)",
-            value=win_rate(df, name, position = 'attack')
-        )
-
-
-        st.metric(
-            label="Win Rate (played on defence)",
-            value=win_rate(df, name, position = 'defence')
-        )
-        
-        
-    with col3:
 
         st.subheader('Goals scored total')
 
@@ -188,7 +213,7 @@ with tab2:
         )
         
         
-    with col4:
+    with col3:
         
         st.subheader('Goals average')
 
