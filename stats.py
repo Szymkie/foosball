@@ -344,7 +344,7 @@ def rankings(df, kpi):
         
     df_kpi.reset_index(drop = True, inplace = True)
     df_kpi.index += 1 
-    df_kpi  = df_kpi.index.name = 'Rank'
+    # df_kpi  = df_kpi.index.name = 'Rank'
     df_kpi.rename(columns = {'kpi' : kpi}, inplace = True)
     
     
