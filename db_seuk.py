@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 
 pd.options.mode.chained_assignment = None
 
-from stats import win_rate, count, played, goals_scored_total, goals_scored_avg, goals_lost_total, goals_lost_avg, winrate_w_partner, num_played_with
+from stats import win_rate, count, played, goals_scored_total, goals_scored_avg, goals_lost_total, goals_lost_avg, winrate_w_partner, num_played_with, rankings
 
 st.set_page_config(
     page_title="Samsung Foosball",
@@ -66,23 +66,63 @@ with tab1:
             value=len(df))
         st.write('Last 5 matches')
         st.table(df.tail())
+        
+    st.header("Rankings")
+    
+    kpis = ['Winrate total', 
+            'Winrate on attack', 
+            'Winrate on defence', 
+            'Played total', 
+            'Played on attack', 
+            'Played on defence', 
+            'Avg goals scored while on attack', 
+            'Avg goals scored while on defence', 
+            'Avg goals lost while on defence', 
+            'Avg goals lost while on attack']
+    
+    choosen_kpi = st.selectbox(label = 'Select the metric:', options = kpis)
+    
+    df_kpis = rankings(df = df, kpi = choosen_kpi)
+    
+    col1, col2 = st.columns([0.25, 0.75], gap = 'large')
+    
+    with col1:
+        
+        st.table(df_kpis)
+        
+    with col2:
+        st.header(f"Top 3 players in {choosen_kpi} metric")
+        
+        col1, col2, col3, col4, col5 = st.columns([0.2, 0.2, 0.2, 0.2, 0.2], gap = 'large')
+        
+        with col1:
+            st.subheader(f'{df_kpis.iloc[0, 0]}🥇')
+            st.write(f'with score of {df_kpis.iloc[0,1]}')
+            
+        with col2:
+            st.subheader(f'{df_kpis.iloc[1, 0]}🥈')
+            st.write(f'with score of {df_kpis.iloc[1,1]}')
+            
+        with col3:   
+            st.subheader(f'{df_kpis.iloc[2, 0]}🥉')
+            st.write(f'with score of {df_kpis.iloc[2,1]}')
+
 
 with tab2: 
     
     st.header('Individual statistics')    
 
-    name = st.selectbox(label = "Choose the player", options = np.unique(df[['Attack_1', 'Defence_1','Attack_2' ,'Defence_2' ]].values))
+    name = st.selectbox(label = "Choose the player", options = np.unique(df[['Attack_1', 'Defence_1','Attack_2' ,'Defence_2']].values))
 
     image = Image.open(f'data/players/{name}.JPEG')
 
-    col1, col2, col3 = st.columns([0.25, 0.25, 0.5], gap = 'large')
+    col1, col2, col3 = st.columns([0.2, 0.2, 0.5], gap = 'large')
 
     with col1:
 
         st.image(image, caption = name)
     
     with col2:
-        
         
         position = st.radio('Winrate', options = ['All', 'Attack', 'Defence'], horizontal = True)
         
@@ -97,13 +137,31 @@ with tab2:
         number = {'suffix': "%"},
         title = {'text': f"Winrate<br>({position})"}))
         
+        
+        cond_color = win_rate(df, name, position = position_arg)
+            
+        if (cond_color <= 35):
+            gauge.update_traces(gauge_bar_color = 'red')
+            
+        elif (cond_color >= 35) & (cond_color < 50):
+            gauge.update_traces(gauge_bar_color = 'yellow') 
+            
+        elif (cond_color >= 50) & (cond_color < 65):
+            gauge.update_traces(gauge_bar_color = 'forestgreen')    
+            
+        elif (cond_color >= 65) & (cond_color < 75):
+            gauge.update_traces(gauge_bar_color = 'darkgreen')
+            
+        elif (cond_color >= 75):
+            gauge.update_traces(gauge_bar_color = 'turquoise')
+            
         gauge.update_traces(gauge_axis_range=[0,100], selector=dict(type='indicator'))
         
         st.plotly_chart(gauge, use_container_width=True, use_container_highth=True)
         
     with col3:
         
-        players = list(np.unique(df[['Attack_1', 'Defence_1','Attack_2' ,'Defence_2' ]].values))
+        players = list(np.unique(df[['Attack_1', 'Defence_1','Attack_2' ,'Defence_2']].values))
         players.remove(name)
         
         win_total_attack = []
@@ -169,27 +227,6 @@ with tab2:
             label="Games on defence",
             value= played(df, name, position = 'defence') 
         )
-        
-        
-#     with col2:
-
-#         st.subheader('Win rates')
-        
-#         st.metric(
-#             label= f"Win Rate (all games)",
-#             value= win_rate(df, name, position = 'all') 
-#         )
-        
-#         st.metric(
-#             label="Win Rate (played on attack)",
-#             value=win_rate(df, name, position = 'attack')
-#         )
-
-
-#         st.metric(
-#             label="Win Rate (played on defence)",
-#             value=win_rate(df, name, position = 'defence')
-#         )
         
         
     with col2:
@@ -273,4 +310,4 @@ with tab3:
             )
         
         
-        st.subheader('Nemesis system in progress')
+        st.subheader('Nemesis system in development')
