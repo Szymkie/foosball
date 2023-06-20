@@ -5,6 +5,8 @@ import pandas as pd
 def count(lst):
     return sum(bool(x) for x in lst)
 
+def all_unique(item):
+    return len(set(item)) == len(item)
 
 def played(df, name, position = 'all'):
     

@@ -7,10 +7,12 @@ import streamlit as st
 from PIL import Image
 import warnings
 import plotly.graph_objects as go
+import joblib
+from datetime import datetime
 
 pd.options.mode.chained_assignment = None
 
-from stats import win_rate, count, played, goals_scored_total, goals_scored_avg, goals_lost_total, goals_lost_avg, winrate_w_partner, num_played_with, rankings
+from stats import win_rate, count, played, goals_scored_total, goals_scored_avg, goals_lost_total, goals_lost_avg, winrate_w_partner, num_played_with, rankings, all_unique
 
 st.set_page_config(
     page_title="Samsung Foosball",
@@ -37,11 +39,11 @@ grouped = df_data.groupby(['Date']).count()['Win']
 
 st.title("SEUK Foosball KPI's")
 
-tab1, tab2, tab3 = st.tabs(["General info", "Personal Statistics", "Cooperational Analysis"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["General Info", "Personal Statistics", "Cooperational Analysis", "Predictive Modeling", "Matches to be played"])
 
 with tab1:
     
-    st.header('General info')    
+    st.header('General info 📈')    
 
     col1, col2 = st.columns(2)
     fig_1 = px.line(x = grouped.index, 
@@ -96,7 +98,7 @@ with tab1:
         col1, col2, col3, col4, col5 = st.columns([0.2, 0.2, 0.2, 0.2, 0.2], gap = 'large')
         
         with col1:
-            st.subheader(f'{df_kpis.iloc[0, 0]}🥇')
+            st.subheader(f'{df_kpis.iloc[0, 0]}🏆')
             st.write(f'with score of {df_kpis.iloc[0,1]}')
             
         with col2:
@@ -110,7 +112,7 @@ with tab1:
 
 with tab2: 
     
-    st.header('Individual statistics')    
+    st.header('Personal statistics 🙋‍♂️')    
 
     name = st.selectbox(label = "Choose the player", options = np.unique(df[['Attack_1', 'Defence_1','Attack_2' ,'Defence_2']].values))
 
@@ -124,11 +126,9 @@ with tab2:
     
     with col2:
         
-        position = st.radio('Winrate', options = ['All', 'Attack', 'Defence'], horizontal = True)
+        position = st.radio(label = 'Choose the position', options = ['All', 'Attack', 'Defence'], horizontal = True)
         
         position_arg = position.lower()
-        
-        
         
         gauge = go.Figure(go.Indicator(
         mode = "gauge+number",
@@ -266,7 +266,7 @@ with tab2:
         
 with tab3:
     
-    st.header('Cooperational analysis')    
+    st.header('Cooperational analysis 🧑‍🤝‍🧑')    
 
     col1, col2 = st.columns(2)
 
@@ -311,3 +311,74 @@ with tab3:
         
         
         st.subheader('Nemesis system in development')
+        
+with tab4:
+    st.header("Predictive Modeling 🤖")
+    st.write('')
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.write("""Choose you squad for virtual game, to predict outcome
+        \n (You need to choose 4 diffrent players)""")
+        
+        all_players_pred = list(df["Attack_1"].unique())
+        
+        st.subheader('Attack on 🟥 Team')
+        a1 = st.selectbox(label = "Choose the Attack_1 player", 
+                          options = all_players_pred, 
+                          label_visibility="hidden")
+        
+        # all_players_pred = all_players_pred.remove(a1)
+    
+        st.subheader('Defence on 🟥 Team')
+        d1 = st.selectbox(label = "Choose the Defence_1 player", 
+                          options = all_players_pred, 
+                          label_visibility="hidden")
+        
+        # all_players_pred = all_players_pred.remove(d1)
+        
+        st.subheader('Attack on 🟦 Team')
+        a2 = st.selectbox(label = "Choose the Attack_2 player", 
+                          options = all_players_pred, 
+                          label_visibility="hidden")
+        
+        # all_players_pred = all_players_pred.remove(a2)
+        
+        st.subheader('Defence on 🟦 Team')
+        d2 = st.selectbox(label = "Choose the Defence_2 player", 
+                          options = all_players_pred, 
+                          label_visibility="hidden")
+        
+        model_list = [a1, d1, a2, d2]
+    
+    with col2:
+        
+        try:
+            assert(all_unique(model_list))
+            
+                        
+#             model = joblib.load('modeling/models/log_reg.plk')
+#             data_model = {'Attack_1' : [a1], 
+#                           'Defence_1' : [d1], 
+#                           'Attack_2' : [a2], 
+#                           'Defence_2' : [d2]}
+
+#             model_df = pd.DataFrame.from_dict(data_model)
+#             currentMonth = datetime.now().month
+#             df_dumm = pd.get_dummies(df, columns = ["Attack_1","Defence_1", "Attack_2", "Defence_2"])
+
+#             model_df['month'] = currentMonth
+            
+            
+  
+        except:  
+            st.header('You need to choose 4 diffrent players ❌')
+            
+        # score = model.predict_proba(df_dumm)
+
+    
+with tab5:
+    st.subheader("In development")
+    
+    
+    
