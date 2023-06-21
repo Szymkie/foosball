@@ -382,7 +382,23 @@ with tab4:
 
         except:  
             st.header('You need to choose 4 diffrent players ❌')
+            
+        data_model = {'Attack_1' : [a1], 
+                      'Defence_1' : [d1], 
+                      'Attack_2' : [a2], 
+                      'Defence_2' : [d2]}
 
+        model_df = pd.DataFrame.from_dict(data_model)
+
+        score = model_preprocessing(df_data, model_df, model = model_log)
+
+        st.header(f"🟥 Team have {score}% chance of winning this match!")
+        st.subheader('Model metrics:')
+
+        st.write('''
+        Model used: Logistic Regression\n 
+        ROC AUC (train set): 0.84\n 
+        ROC AUC (test set): 0.72''')
 
     
 with tab5:
