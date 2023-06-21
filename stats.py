@@ -353,7 +353,7 @@ def rankings(df, kpi):
     
     return df_kpi
 
-def model_preprocessing(df, model_df, model_path):
+def model_preprocessing(df, model_df, model):
     
     """Preprocessing user input to match models input and calculate match prediction"""
     
@@ -372,7 +372,6 @@ def model_preprocessing(df, model_df, model_path):
     pred_df = pred_df[sorted_cols]
     pred_df['month'] = currentMonth
     
-    model = joblib.load('modeling/models/log_reg.plk')
     score = round(model.predict_proba(pred_df)[0][1] * 100, 2)
 
     
