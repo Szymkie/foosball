@@ -12,7 +12,7 @@ from datetime import datetime
 
 pd.options.mode.chained_assignment = None
 
-from stats import win_rate, count, played, goals_scored_total, goals_scored_avg, goals_lost_total, goals_lost_avg, winrate_w_partner, num_played_with, rankings, all_unique
+from stats import win_rate, count, played, goals_scored_total, goals_scored_avg, goals_lost_total, goals_lost_avg, winrate_w_partner, num_played_with, rankings, all_unique, model_preprocessing
 
 st.set_page_config(
     page_title="Samsung Foosball",
@@ -317,7 +317,7 @@ with tab4:
     st.write('')
     col1, col2 = st.columns(2)
     
-    with col1:
+    with col2:
         st.write("""Choose you squad for virtual game, to predict outcome
         \n (You need to choose 4 diffrent players)""")
         
@@ -351,30 +351,32 @@ with tab4:
         
         model_list = [a1, d1, a2, d2]
     
-    with col2:
+    with col1:
         
         try:
             assert(all_unique(model_list))
             
                         
-#             model = joblib.load('modeling/models/log_reg.plk')
-#             data_model = {'Attack_1' : [a1], 
-#                           'Defence_1' : [d1], 
-#                           'Attack_2' : [a2], 
-#                           'Defence_2' : [d2]}
+            data_model = {'Attack_1' : [a1], 
+                          'Defence_1' : [d1], 
+                          'Attack_2' : [a2], 
+                          'Defence_2' : [d2]}
 
-#             model_df = pd.DataFrame.from_dict(data_model)
-#             currentMonth = datetime.now().month
-#             df_dumm = pd.get_dummies(df, columns = ["Attack_1","Defence_1", "Attack_2", "Defence_2"])
+            model_df = pd.DataFrame.from_dict(data_model)
+           
+            score = model_preprocessing(df_data, model_df, model_path = 'modeling/models/log_reg.plk')
+            
+            st.header(f"🟥 Team have {score}% chance of winning this match!")
+            st.subheader('Model metrics:')
 
-#             model_df['month'] = currentMonth
-            
-            
-  
+            st.write('''
+            Model used: Logistic Regression\n 
+            ROC AUC (train set): 0.84\n 
+            ROC AUC (test set): 0.72''')
+
         except:  
             st.header('You need to choose 4 diffrent players ❌')
             
-        # score = model.predict_proba(df_dumm)
 
     
 with tab5:

@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
-
+from datetime import datetime
+import joblib
 
 def count(lst):
     return sum(bool(x) for x in lst)
@@ -351,3 +352,28 @@ def rankings(df, kpi):
     
     
     return df_kpi
+
+def model_preprocessing(df, model_df, model_path):
+    
+    """Preprocessing user input to match models input and calculate match prediction"""
+    
+    df_dumm = pd.get_dummies(df, columns = ["Attack_1","Defence_1", "Attack_2", "Defence_2"])
+    attack_columns = [col for col in df_dumm.columns if 'Attack' in col]    
+    defence_columns = [col for col in df_dumm.columns if 'Defence' in col] 
+
+    df_dumm = df_dumm[attack_columns + defence_columns]
+
+    pred_df = pd.get_dummies(model_df, columns = ["Attack_1","Defence_1", "Attack_2", "Defence_2"])
+    pred_df = pred_df.reindex(columns = df_dumm.columns, fill_value = False)
+    
+    sorted_cols = sorted(pred_df, key=lambda x: x[x.rfind("_") + 1:] + x[:x.rfind("_")])
+
+    currentMonth = datetime.now().month
+    pred_df = pred_df[sorted_cols]
+    pred_df['month'] = currentMonth
+    
+    model = joblib.load('modeling/models/log_reg.plk')
+    score = round(model.predict_proba(pred_df)[0][1] * 100, 2)
+
+    
+    return score
