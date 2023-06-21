@@ -7,3 +7,4 @@ streamlit ~= 1.23.0
 openpyxl ~= 3.1.1
 joblib
 datetime
+sklearn ~= 1.2.2

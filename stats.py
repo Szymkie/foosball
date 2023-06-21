@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 import joblib
+from sklearn.linear_model import LogisticRegression
+
 
 def count(lst):
     return sum(bool(x) for x in lst)

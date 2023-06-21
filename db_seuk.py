@@ -9,6 +9,8 @@ import warnings
 import plotly.graph_objects as go
 import joblib
 from datetime import datetime
+from sklearn.linear_model import LogisticRegression
+
 
 pd.options.mode.chained_assignment = None
 
