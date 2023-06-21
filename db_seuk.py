@@ -31,12 +31,7 @@ def load_data_data():
     df_data = pd.read_excel('data/seuk_04.xlsx')
     return df_data
 
-@st.cache_data
-def load_model():
-    model = joblib.load('modeling/models/log_reg.plk')
-    return model_log
 
-model_log = load_model
 df = load_data()
 df_data = load_data_data()
 
@@ -369,7 +364,7 @@ with tab4:
                           'Defence_2' : [d2]}
 
             model_df = pd.DataFrame.from_dict(data_model)
-           
+            model_log = joblib.load('modeling/models/log_reg.plk')
             score = model_preprocessing(df_data, model_df, model = model_log)
             
             st.header(f"🟥 Team have {score}% chance of winning this match!")
