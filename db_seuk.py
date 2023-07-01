@@ -374,7 +374,8 @@ with tab4:
             st.write('''
             Model used: Logistic Regression\n 
             ROC AUC (train set): 0.84\n 
-            ROC AUC (test set): 0.72''')
+            ROC AUC (test set): 0.72\n
+            Model update: 22.06.2023''')
 
         except:  
             st.header('You need to choose 4 diffrent players ❌')
